@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { IProduct } from "../types/product";
 
@@ -14,7 +15,9 @@ const Product: React.FC<{ product: IProduct }> = ({ product }) => {
       />
       <h3 className="text-lg font-bold text-black mb-2">{product.name}</h3>
       <p className="text-sm text-primary mb-4">${product.price}</p>
-      <button className="btn-primary">SEE PRODUCT</button>
+      <Link className="btn-primary" href={`/products/${product.id}`}>
+        SEE PRODUCT
+      </Link>
     </div>
   );
 };
