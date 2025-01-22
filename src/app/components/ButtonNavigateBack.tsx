@@ -7,9 +7,9 @@ const ButtonNavigateBack = () => {
   return (
     <button
       onClick={() => router.back()}
-      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+      className="mt-4 px-4 py-2  text-gray-500 rounded-lg hover:text-black"
     >
-      Back to Cart
+      Go Back
     </button>
   );
 };

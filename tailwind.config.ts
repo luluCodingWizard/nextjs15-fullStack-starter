@@ -8,6 +8,10 @@ export default {
   ],
   theme: {
     extend: {
+      container: {
+        center: true, // This centers the container
+        padding: "1rem", // Adds padding on both sides of the container
+      },
       colors: {
         primary: "#D87D4A",
         secondary: "#FBaf85",

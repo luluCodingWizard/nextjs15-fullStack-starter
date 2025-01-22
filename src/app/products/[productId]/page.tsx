@@ -1,18 +1,37 @@
 import ButtonNavigateBack from "@/app/components/ButtonNavigateBack";
 import { productsData } from "@/app/data";
-export default function ProductDetailPage({
+import Image from "next/image";
+export default async function ProductDetailPage({
   params,
 }: {
   params: { productId: string };
 }) {
-  const product = productsData.find((p) => params.productId === p.id);
+  const { productId } = await params;
+  const product = productsData.find((p) => productId === p.id);
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">{product!.name}</h1>
-      <p className="text-gray-500 text-lg mb-4">${product!.price.toFixed(2)}</p>
-      <h3 className="text-xl font-semibold mb-2">Description</h3>
-      <p className="text-gray-700">{product!.description}</p>
       <ButtonNavigateBack />
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-5 mt-12">
+        <div className="">
+          <Image
+            src={product!.imageUrl}
+            alt={product!.name}
+            width={550}
+            height={550}
+            priority
+          />
+        </div>
+        <div className="">
+          <p className="text-primary">NEW PRODUCT</p>
+          <h1 className="text-3xl font-bold mb-4">{product!.name}</h1>
+
+          <p className="text-darkGray text-xs">{product!.description}</p>
+
+          <p className="text-black text-lg mb-4 mt-10">
+            ${product!.price.toFixed(2)}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
