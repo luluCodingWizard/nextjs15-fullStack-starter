@@ -35,3 +35,28 @@ export async function GET(
     },
   });
 }
+
+type ICartBody = {
+  productId: string;
+};
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  const id = await params.userId;
+  const body: ICartBody = await req.json(); // Parse the request body
+  const { productId } = body; // extract the product id from the request body
+
+  if (!carts[id]) {
+    carts[id] = [];
+  }
+
+  carts[id].push(productId);
+
+  const updatedCart = carts[id].map((ID) => ({ productId: ID, quantity: 1 }));
+
+  return new NextResponse(JSON.stringify(updatedCart), {
+    status: 201,
+    headers: { "Content-Type": "application/json" },
+  });
+}
