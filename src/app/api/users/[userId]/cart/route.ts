@@ -60,3 +60,21 @@ export async function POST(
     headers: { "Content-Type": "application/json" },
   });
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  const userID = await params.userId;
+  const body: ICartBody = await req.json();
+  const productId = body.productId;
+
+  carts[userID] = (carts[userID] || []).filter((pid) => pid !== productId);
+
+  return new NextResponse(JSON.stringify(carts[userID]), {
+    status: 202,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
