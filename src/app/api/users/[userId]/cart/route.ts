@@ -1,21 +1,18 @@
 import { NextResponse, NextRequest } from "next/server";
-import { productsData } from "@/app/data";
-
-type IShoppingCart = Record<string, string[]>;
-const carts: IShoppingCart = {
-  "1": ["111"],
-  "2": ["222", "333"],
-};
+import connectMangoDB from "@/app/utils/db";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
-  const userID = await params.userId;
+  const { db } = await connectMangoDB();
 
-  const productIds = carts[userID];
+  const { userId } = await params;
 
-  if (!productIds) {
+  const userCart = await db.collection("carts").findOne({ userId: userId });
+
+  if (!userCart || !userCart.cartIds || !Array.isArray(userCart.cartIds)) {
+    // Handle cases where the userCart or cartIds are missing
     return new NextResponse(JSON.stringify([]), {
       status: 200,
       headers: {
@@ -24,9 +21,14 @@ export async function GET(
     });
   }
 
-  const cartProducts = productIds.map((id) =>
-    productsData.find((product) => product.id === id)
-  );
+  const cartIds = userCart.cartIds;
+  console.log("Cart IDs:", cartIds);
+
+  // Fetch products based on cartIds
+  const cartProducts = await db
+    .collection("products")
+    .find({ id: { $in: cartIds } }) // Ensure cartIds is an array
+    .toArray();
 
   return new NextResponse(JSON.stringify(cartProducts), {
     status: 200,
