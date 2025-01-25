@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { productsData } from "@/app/data";
+import connectMangoDB from "@/app/utils/db";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { productId: string } }
 ) {
+  const { db } = await connectMangoDB();
   const id = await params.productId;
 
-  const product = productsData.find((p) => p.id === id);
+  const product = await db.collection("products").findOne({ id });
 
   if (!product) {
     return new NextResponse("Product not found", { status: 404 });
