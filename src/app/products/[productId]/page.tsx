@@ -1,5 +1,5 @@
 import ButtonNavigateBack from "@/app/components/ButtonNavigateBack";
-import { productsData } from "@/app/data";
+
 import Image from "next/image";
 export default async function ProductDetailPage({
   params,
@@ -7,7 +7,31 @@ export default async function ProductDetailPage({
   params: { productId: string };
 }) {
   const { productId } = await params;
-  const product = productsData.find((p) => productId === p.id);
+  let product;
+  try {
+    // Fetch the product details from the API
+    const response = await fetch(
+      `http://localhost:3000/api/products/${productId}`
+    );
+    // Handle 404 scenario
+    if (response.status === 404) {
+      return (
+        <div className="container mx-auto p-4">
+          <ButtonNavigateBack />
+          <h1 className="text-xl font-bold text-red-500 mt-12">
+            Product not found.
+          </h1>
+        </div>
+      );
+    }
+    // Handle other errors (e.g., server down, etc.)
+    if (!response.ok) {
+      throw new Error("Failed to fetch the product details.");
+    }
+    product = await response.json();
+  } catch (error) {
+    console.error(error);
+  }
   return (
     <div className="container mx-auto p-4">
       <ButtonNavigateBack />
