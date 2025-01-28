@@ -74,13 +74,35 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
+  const { db } = await connectMangoDB();
+
   const userID = await params.userId;
   const body: ICartBody = await req.json();
   const productId = body.productId;
 
-  carts[userID] = (carts[userID] || []).filter((pid) => pid !== productId);
+  const updatedCart = await db
+    .collection("carts")
+    .findOneAndUpdate(
+      { userId: userID },
+      { $pull: { cartIds: productId } },
+      { returnDocument: "after" }
+    );
 
-  return new NextResponse(JSON.stringify(carts[userID]), {
+  if (!updatedCart) {
+    return new NextResponse(JSON.stringify([]), {
+      status: 202,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  const cartProducts = await db
+    .collection("products")
+    .find({ id: { $in: updatedCart.cartIds } })
+    .toArray();
+
+  return new NextResponse(JSON.stringify(cartProducts), {
     status: 202,
     headers: {
       "Content-Type": "application/json",
