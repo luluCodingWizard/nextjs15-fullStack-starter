@@ -45,19 +45,26 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { userId: string } }
 ) {
-  const id = await params.userId;
+  const { db } = await connectMangoDB();
+  const { userId } = await params;
   const body: ICartBody = await req.json(); // Parse the request body
   const { productId } = body; // extract the product id from the request body
 
-  if (!carts[id]) {
-    carts[id] = [];
-  }
+  const updatedCart = await db.collection("carts").findOneAndUpdate(
+    { userId },
+    { $push: { cartIds: productId } },
+    {
+      upsert: true,
+      returnDocument: "after",
+    }
+  );
 
-  carts[id].push(productId);
+  const cartProducts = await db
+    .collection("products")
+    .find({ id: { $in: updatedCart.cartIds } })
+    .toArray();
 
-  const updatedCart = carts[id].map((ID) => ({ productId: ID, quantity: 1 }));
-
-  return new NextResponse(JSON.stringify(updatedCart), {
+  return new NextResponse(JSON.stringify(cartProducts), {
     status: 201,
     headers: { "Content-Type": "application/json" },
   });
